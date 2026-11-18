@@ -132,6 +132,7 @@ async fn brain_run_enforces_tenant_policy_and_serves_openapi() {
 
     // 4. Tenant A max_tokens exceeded -> 403
     let resp = app
+        .clone()
         .oneshot(
             Request::builder()
                 .method("POST")
@@ -146,6 +147,38 @@ async fn brain_run_enforces_tenant_policy_and_serves_openapi() {
                     })
                     .to_string(),
                 ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::FORBIDDEN);
+
+    // 5. Project logs endpoint: tenant-a can read its own logs, forbidden on tenant-b
+    let resp = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/projects/logs?kind=session")
+                .header("authorization", "Bearer tenant-a-key")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(resp.into_body(), 1024 * 64)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["project_id"], "tenant-a");
+    assert!(json["count"].as_u64().unwrap() >= 1);
+
+    let resp = app
+        .oneshot(
+            Request::builder()
+                .uri("/api/v1/projects/tenant-b/logs")
+                .header("authorization", "Bearer tenant-a-key")
+                .body(Body::empty())
                 .unwrap(),
         )
         .await

@@ -303,8 +303,35 @@ impl SafeExitCode {
     }
 }
 
+#[derive(clap::Args, Debug, Clone)]
+pub struct LogsArgs {
+    /// Workspace directory containing storage/ and memory/
+    #[arg(short, long, default_value = ".")]
+    pub workspace: PathBuf,
+    /// Filter by project/tenant ID
+    #[arg(short, long)]
+    pub project: Option<String>,
+    /// Log kind: all | brain | scratchpad | session | tasks
+    #[arg(short, long, default_value = "all")]
+    pub kind: String,
+    /// Maximum number of log entries to display
+    #[arg(short, long, default_value_t = 50)]
+    pub limit: usize,
+    /// Filter by session ID
+    #[arg(long)]
+    pub session: Option<String>,
+    /// Filter by task ID
+    #[arg(long)]
+    pub task: Option<String>,
+    /// Output format: table | json
+    #[arg(short, long, value_enum, default_value_t = OutputFormat::Table)]
+    pub format: OutputFormat,
+}
+
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
+    /// View unified logs for a project (brain usage, scratchpads, sessions, tasks)
+    Logs(LogsArgs),
     /// Inspect task, memory, or workflow DAG details
     Inspect(InspectArgs),
     /// Manage project-scoped persona memory

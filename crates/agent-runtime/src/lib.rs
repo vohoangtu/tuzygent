@@ -11,6 +11,7 @@ pub mod ooda;
 pub use ooda as ooda_loop;
 pub mod operator;
 pub mod processtree;
+pub mod project_logs;
 pub mod report_queue;
 pub mod sandbox;
 pub mod sentinel;
@@ -62,6 +63,7 @@ pub use operator::{
     TeammateTurnResult, DEFAULT_MAX_COORDINATION_DEPTH, MAX_COORDINATE_BOTS,
 };
 pub use processtree::ProcessTreeController;
+pub use project_logs::{read_project_logs, ProjectLogEntry, ProjectLogKind, ProjectLogQuery};
 pub use report_queue::{TerminalReportKind, TerminalReportStore, TerminalTaskReport};
 pub use sandbox::{
     command_sandbox, expand_home, filter_sandbox_env_whitelist, inject_agent_brief,

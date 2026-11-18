@@ -4,6 +4,7 @@ pub mod benchmark;
 pub mod demo;
 pub mod engines;
 pub mod inspect;
+pub mod logs;
 pub mod mcp;
 pub mod memory;
 pub mod persona;
@@ -26,6 +27,7 @@ pub use resilience::{ResilientCommandDispatcher, ShardedResilientCommandDispatch
 
 pub async fn run_command(cli: Cli) -> anyhow::Result<()> {
     match cli.command {
+        Commands::Logs(args) => logs::handle(args).await?,
         Commands::Inspect(args) => inspect::handle(args).await?,
         Commands::Memory(args) => memory::handle(args).await?,
         Commands::Replay(args) => replay::handle(args).await?,

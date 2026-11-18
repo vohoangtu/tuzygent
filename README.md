@@ -126,6 +126,7 @@ cargo run -p agent-server -- --host 127.0.0.1 --port 8080 --workspace .
 - **`GET /health`**: Kiểm tra trạng thái server.
 - **`GET /api/v1/openapi.json`**: Trả về OpenAPI 3.1.0 schema phục vụ sinh SDK TypeScript/Python/Go.
 - **`POST /api/v1/brain/run`**: Endpoint AI Brain hợp nhất (hỗ trợ đa tenant qua `TenantKeyPolicy`/`X-Tenant-Id`, `session_id`, `tools`, `response_format`, SSE streaming, ghi nhận token usage).
+- **`GET /api/v1/projects/logs`** / **`GET /api/v1/projects/{project_id}/logs`**: Xem logs tổng hợp theo project (`?kind=all|brain|scratchpad|session|tasks&limit=50&session_id=...&task_id=...`), tự động cô lập theo `TenantContext`.
 - **`POST /v1/chat/completions`**: Gateway chuẩn OpenAI (hỗ trợ SSE streaming, `tools`, `response_format`, `usage`, định tuyến cả CLI engines lẫn API engines `openai/*`, `ollama/*`).
 - **`GET /api/v1/engines`**: Xem cấu hình các AI CLI engine đã nạp và trạng thái sandbox OS.
 - **`GET /api/v1/agents`**: Lấy danh sách nhân viên số đang hoạt động.
@@ -173,6 +174,8 @@ Các lệnh quản trị và điều phối OS AI:
 ```bash
 # 1. Liệt kê và kiểm tra kết nối các AI CLI engine của hệ thống
 ./target/release/agent-ctl engines --workspace .
+# Xem logs tổng hợp theo project:
+./target/release/agent-ctl logs --workspace . --project default --kind all --limit 50
 # Test nhanh kết nối engine:
 ./target/release/agent-ctl engines --test fast_echo
 

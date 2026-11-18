@@ -271,6 +271,8 @@ pub async fn openapi_spec_handler() -> Json<serde_json::Value> {
             "/v1/models": { "get": { "summary": "List available models & engines" } },
             "/v1/chat/completions": { "post": { "summary": "OpenAI-compatible chat completions (streaming, tools, response_format)" } },
             "/api/v1/brain/run": { "post": { "summary": "Multi-tenant, session-aware AI Brain execution (JSON & SSE)" } },
+            "/api/v1/projects/logs": { "get": { "summary": "Query unified project logs (brain_usage, scratchpad, session, tasks)" } },
+            "/api/v1/projects/{project_id}/logs": { "get": { "summary": "Query logs for a specific project/tenant" } },
             "/api/v1/tasks": { "get": { "summary": "List background OODA tasks" }, "post": { "summary": "Submit async OODA task (supports Idempotency-Key)" } },
             "/api/v1/tasks/{id}": { "get": { "summary": "Get OODA task status & result" } },
             "/api/v1/ws": { "get": { "summary": "WebSocket real-time InterAgentBus stream" } }

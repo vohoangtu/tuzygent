@@ -79,6 +79,11 @@ pub fn build_app(state: AppState, auth: AuthState) -> Router {
     let api = Router::new()
         .route("/api/v1/engines", get(list_engines_handler))
         .route("/api/v1/brain/run", post(brain_run_handler))
+        .route("/api/v1/projects/logs", get(list_project_logs_handler))
+        .route(
+            "/api/v1/projects/{project_id}/logs",
+            get(get_project_logs_by_id_handler),
+        )
         .route(
             "/api/v1/agents",
             get(list_agents_handler).post(create_agent_handler),

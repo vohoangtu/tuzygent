@@ -87,7 +87,8 @@ pub mod prelude {
         TournamentExecutor, TournamentOutcome, WorkflowOrchestrator, WorkspaceBenchmarkHarness,
         WorkspaceManager, WsRpcClient, CoordinateBotsRequest, CoordinationBatchResult,
         CoordinationContext, CoordinationReplyMode, ToolCallingLoop, ToolLoopConfig,
-        ToolLoopResult, DEFAULT_MAX_COORDINATION_DEPTH,
+        ToolLoopResult, read_project_logs, ProjectLogEntry, ProjectLogKind, ProjectLogQuery,
+        DEFAULT_MAX_COORDINATION_DEPTH,
         MAX_COORDINATE_BOTS, SANDBOX_CPU_TOPOLOGY_PATHS, SANDBOX_ENV_NEVER_LIST,
     };
 
