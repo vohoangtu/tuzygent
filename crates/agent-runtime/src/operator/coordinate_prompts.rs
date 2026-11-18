@@ -186,6 +186,7 @@ impl CoordinatePromptOps for KernelOperator {
             temperature: None,
             max_tokens: None,
             max_output_bytes: None,
+            ..Default::default()
         }
     }
 }

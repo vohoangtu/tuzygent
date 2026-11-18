@@ -24,6 +24,7 @@ pub use auth::{
     AuthBenchmarkHarness, AuthBenchmarkStats, AuthCacheEntry, AuthCacheStats, AuthError,
     AuthErrorTier, AuthFallbackStrategy, AuthFault, AuthFaultPolicy, AuthState,
     ConcurrentAuthCache, ResilientAuthValidator, ShardedAuthCache, ShardedResilientAuthValidator,
+    TenantContext, TenantKeyPolicy,
 };
 pub use dashboard_html::{
     simulate_dashboard_fault, ConcurrentDashboardCache, DashboardAsset, DashboardAssetRegistry,
@@ -77,6 +78,7 @@ pub fn build_app(state: AppState, auth: AuthState) -> Router {
 
     let api = Router::new()
         .route("/api/v1/engines", get(list_engines_handler))
+        .route("/api/v1/brain/run", post(brain_run_handler))
         .route(
             "/api/v1/agents",
             get(list_agents_handler).post(create_agent_handler),
@@ -98,6 +100,7 @@ pub fn build_app(state: AppState, auth: AuthState) -> Router {
         .route("/", get(dashboard_handler))
         .route("/dashboard", get(dashboard_handler))
         .route("/health", get(health_handler))
+        .route("/api/v1/openapi.json", get(openapi_spec_handler))
         .route("/metrics", get(metrics::metrics_handler))
         .merge(api)
         .layer(cors)

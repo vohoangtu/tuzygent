@@ -25,6 +25,7 @@ fn create_test_input(prompt: &str, timeout_seconds: u64) -> EngineInput {
         temperature: None,
         max_tokens: None,
         max_output_bytes: None,
+        ..Default::default()
     }
 }
 
@@ -797,6 +798,7 @@ impl ComputeEngine for MockEngineWithFailures {
                 execution_duration_ms: 5,
                 engine_used: EngineKind::CustomAgentApi,
                 session_id: None,
+                ..Default::default()
             })
         }
     }
@@ -1074,6 +1076,7 @@ fn test_resilient_capacity_reservation_and_cache_operations() {
         execution_duration_ms: 8,
         engine_used: EngineKind::CustomAgentApi,
         session_id: Some("session-1".to_string()),
+        ..Default::default()
     };
 
     assert!(resilient.get_cached("missing").is_none());

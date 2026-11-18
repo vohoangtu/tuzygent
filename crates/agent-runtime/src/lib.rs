@@ -18,6 +18,7 @@ pub mod supervisor;
 pub mod supplement;
 pub mod task_service;
 pub mod task_store;
+pub mod tool_loop;
 pub mod tournament;
 pub mod verifier;
 pub mod watchdog;
@@ -80,6 +81,7 @@ pub use supervisor::{AgentState, AgentSupervisor};
 pub use supplement::{InFlightSupplement, InFlightSupplementController};
 pub use task_service::{SchedulerTickReport, TaskService};
 pub use task_store::{IdempotentSubmission, SqliteTaskStore, TaskStore};
+pub use tool_loop::{ToolCallingLoop, ToolLoopConfig, ToolLoopResult};
 pub use tournament::{
     AutoJudge, AutoJudgeConfig, CandidateScorecard, TournamentCandidate, TournamentExecutor,
     TournamentOutcome,

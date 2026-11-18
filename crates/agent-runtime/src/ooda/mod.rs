@@ -53,6 +53,7 @@ pub struct AutonomousOodaLoop {
     pub(crate) auto_approve: bool,
     pub(crate) backoff_policy: Option<agent_engine::BackoffPolicy>,
     pub(crate) context_budget: Option<crate::ooda::execution::runner::step::ContextBudget>,
+    pub(crate) project_id: String,
 }
 
 impl AutonomousOodaLoop {
@@ -79,7 +80,16 @@ impl AutonomousOodaLoop {
             auto_approve: false,
             backoff_policy: None,
             context_budget: None,
+            project_id: "default".to_string(),
         }
+    }
+
+    pub fn with_project_id(mut self, project_id: impl Into<String>) -> Self {
+        let trimmed = project_id.into();
+        if !trimmed.trim().is_empty() {
+            self.project_id = trimmed;
+        }
+        self
     }
 
     pub fn with_context_budget(mut self, budget: crate::ooda::execution::runner::step::ContextBudget) -> Self {

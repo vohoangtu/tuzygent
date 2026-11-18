@@ -227,6 +227,7 @@ impl ComputeEngine for AntigravityEngine {
             execution_duration_ms: duration,
             engine_used: EngineKind::Antigravity,
             session_id: None,
+            ..Default::default()
         })
     }
 

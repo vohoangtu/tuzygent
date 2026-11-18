@@ -60,6 +60,7 @@ pub async fn handle(workspace: String, test: Option<String>) -> anyhow::Result<(
             temperature: None,
             max_tokens: None,
             max_output_bytes: None,
+            ..Default::default()
         };
 
         let router = EngineRouter::from_config(&config);

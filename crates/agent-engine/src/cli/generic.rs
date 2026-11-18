@@ -99,6 +99,7 @@ impl ComputeEngine for GenericCliEngine {
             execution_duration_ms: duration,
             engine_used: EngineKind::Generic(self.name.clone()),
             session_id: None,
+            ..Default::default()
         })
     }
 

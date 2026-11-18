@@ -106,6 +106,7 @@ impl GoalDecomposer {
             temperature: None,
             max_tokens: None,
             max_output_bytes: Some(self.guardrail.max_output_bytes),
+            ..Default::default()
         };
 
         let mut subtasks = match self.execute_engine(&input).await {
@@ -265,6 +266,7 @@ mod tests {
                 exit_code: 0,
                 execution_duration_ms: 0,
                 engine_used: EngineKind::Mock,
+                ..Default::default()
             })
         }
 

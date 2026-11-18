@@ -6,9 +6,13 @@ use axum::{
 };
 
 use super::extractors::{extract_bearer_token, extract_ws_token, token_matches};
-use super::state::AuthState;
+use super::state::{AuthState, TenantContext};
 
-pub async fn require_auth(State(auth): State<AuthState>, request: Request, next: Next) -> Response {
+pub async fn require_auth(
+    State(auth): State<AuthState>,
+    mut request: Request,
+    next: Next,
+) -> Response {
     // Fault injection check for chaos simulation
     if let Ok(mut policy) = auth.fault_policy.lock() {
         if let Some(fault) = policy.should_inject() {
@@ -35,9 +39,21 @@ pub async fn require_auth(State(auth): State<AuthState>, request: Request, next:
     };
 
     let candidate = bearer.or(ws_token);
+    let mut matched_tenant: Option<TenantContext> = None;
+
     let is_valid = match candidate {
         Some(token) => {
-            if let Some(ref cache) = auth.cache {
+            if let Some((_, policy)) = auth
+                .tenant_keys
+                .iter()
+                .find(|(k, _)| token_matches(token, k))
+            {
+                matched_tenant = Some(TenantContext {
+                    tenant_id: policy.tenant_id.clone(),
+                    policy: Some(policy.clone()),
+                });
+                true
+            } else if let Some(ref cache) = auth.cache {
                 if let Some(cached_valid) = cache.get(token) {
                     cached_valid
                 } else {
@@ -63,6 +79,20 @@ pub async fn require_auth(State(auth): State<AuthState>, request: Request, next:
     if !is_valid {
         return StatusCode::UNAUTHORIZED.into_response();
     }
+    let tenant_ctx = matched_tenant.unwrap_or_else(|| {
+        let header_tenant = request
+            .headers()
+            .get("x-tenant-id")
+            .and_then(|v| v.to_str().ok())
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or("default")
+            .to_string();
+        TenantContext {
+            tenant_id: header_tenant,
+            policy: None,
+        }
+    });
+    request.extensions_mut().insert(tenant_ctx);
     next.run(request).await
 }
 

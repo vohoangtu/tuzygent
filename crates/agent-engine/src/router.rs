@@ -162,10 +162,37 @@ pub fn configured_engine(
         }
         "antigravity" | "agy" => Ok(Arc::new(AntigravityEngine::new(binary, model))),
         "local" | "omniroute" => Ok(Arc::new(crate::OpenAiCompatibleEngine::new(
-            "http://127.0.0.1:20128/v1",
+            single
+                .and_then(|e| e.base_url.as_deref())
+                .unwrap_or("http://127.0.0.1:20128/v1"),
             "omniroute",
             model.as_deref().unwrap_or("local"),
         ))),
+        "openai" | "openai_compat" | "ollama" | "api" => {
+            let default_url = if kind == "ollama" {
+                "http://127.0.0.1:11434/v1"
+            } else {
+                "https://api.openai.com/v1"
+            };
+            let base_url = single
+                .and_then(|e| e.base_url.as_deref())
+                .unwrap_or(default_url);
+            let api_key = single
+                .and_then(|e| e.api_key_env.as_deref())
+                .and_then(|var| std::env::var(var).ok())
+                .or_else(|| std::env::var("OPENAI_API_KEY").ok())
+                .unwrap_or_default();
+            let default_model = if kind == "ollama" {
+                "qwen2.5:latest"
+            } else {
+                "gpt-4o-mini"
+            };
+            Ok(Arc::new(crate::OpenAiCompatibleEngine::new(
+                base_url,
+                &api_key,
+                model.as_deref().unwrap_or(default_model),
+            )))
+        }
         "mock" => Ok(Arc::new(crate::MockEngine::new("Mock completed task"))),
         "generic" => {
             let single = single.ok_or_else(|| {

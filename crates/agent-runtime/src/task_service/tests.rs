@@ -41,6 +41,7 @@ impl ComputeEngine for CountingMockEngine {
             execution_duration_ms: 2,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }
 
@@ -89,6 +90,7 @@ impl ComputeEngine for BlockingMockEngine {
             execution_duration_ms: 1,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }
 

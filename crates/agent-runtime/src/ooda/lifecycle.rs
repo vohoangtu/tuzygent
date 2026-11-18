@@ -96,7 +96,12 @@ impl AutonomousOodaLoop {
             subtask_id = "",
             execution_phase = super::OODA_PHASE_ORIENT,
         );
-        let (memory, long_term_ctx) = match orient_context(&self.workspace_dir, &self.persona, task)
+        let (memory, long_term_ctx) = match orient_context(
+            &self.workspace_dir,
+            &self.project_id,
+            &self.persona,
+            task,
+        )
             .instrument(orient_span)
             .await
         {

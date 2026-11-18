@@ -151,6 +151,7 @@ impl KernelOperator {
                     temperature: None,
                     max_tokens: None,
                     max_output_bytes: None,
+                    ..Default::default()
                 };
                 match execution.execute(engine, &input).await {
                     Ok(result) => {
@@ -250,6 +251,7 @@ impl KernelOperator {
                         temperature: None,
                         max_tokens: None,
                         max_output_bytes: None,
+                        ..Default::default()
                     };
                     match execution.execute(engine, &input).await {
                         Ok(result) => {

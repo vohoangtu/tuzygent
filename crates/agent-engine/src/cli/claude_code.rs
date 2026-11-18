@@ -105,6 +105,7 @@ impl ComputeEngine for ClaudeCodeEngine {
             execution_duration_ms: duration,
             engine_used: EngineKind::ClaudeCode,
             session_id: None,
+            ..Default::default()
         })
     }
 

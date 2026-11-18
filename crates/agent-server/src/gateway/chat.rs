@@ -9,10 +9,12 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use uuid::Uuid;
 
-use agent_engine::{AccountRotatedEngine, EngineInput};
+use agent_engine::{AccountRotatedEngine, ComputeEngine, EngineInput, EnginesConfig};
 use agent_runtime::ExecutionService;
 
-use super::types::{format_prompt_from_messages, parse_model_spec, ChatCompletionRequest};
+use super::types::{
+    format_prompt_from_messages, resolve_gateway_target, ChatCompletionRequest, GatewayTarget,
+};
 use crate::AppState;
 
 /// Endpoint chuẩn OpenAI POST /v1/chat/completions
@@ -20,7 +22,7 @@ pub async fn chat_completions_handler(
     State(state): State<AppState>,
     Json(payload): Json<ChatCompletionRequest>,
 ) -> Response {
-    let (engine_kind, model_override) = match parse_model_spec(&payload.model) {
+    let target = match resolve_gateway_target(&payload.model) {
         Ok(res) => res,
         Err(err_msg) => {
             return (
@@ -41,12 +43,32 @@ pub async fn chat_completions_handler(
         Ok(service) => service,
         Err(err) => return (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()).into_response(),
     };
-    let engine = Arc::new(AccountRotatedEngine::new(
-        state.vault.clone(),
-        engine_kind,
-        None,
-        model_override,
-    ));
+    let engine: Arc<dyn ComputeEngine> = match target {
+        GatewayTarget::AccountRotated(engine_kind, model_override) => {
+            Arc::new(AccountRotatedEngine::new(
+                state.vault.clone(),
+                engine_kind,
+                None,
+                model_override,
+            ))
+        }
+        GatewayTarget::ConfiguredApi {
+            engine_name,
+            model_override,
+        } => {
+            let cfg = EnginesConfig::load_hierarchical(Some(std::path::Path::new(&state.workspace)));
+            match agent_engine::configured_engine(&cfg, &engine_name, model_override.as_deref()) {
+                Ok(e) => e,
+                Err(err) => {
+                    return (
+                        StatusCode::BAD_REQUEST,
+                        Json(serde_json::json!({ "error": { "message": err.to_string() } })),
+                    )
+                        .into_response();
+                }
+            }
+        }
+    };
 
     let completion_id = format!("chatcmpl-{}", Uuid::new_v4().simple());
     let created_ts = chrono::Utc::now().timestamp();
@@ -105,6 +127,21 @@ pub async fn chat_completions_handler(
         }
         input.temperature = payload.temperature;
         input.max_tokens = payload.max_tokens;
+        input.tools = payload.tools.clone();
+        input.tool_choice = payload.tool_choice.clone();
+        input.response_format = payload.response_format.clone();
+        input.messages = Some(
+            payload
+                .messages
+                .iter()
+                .map(|m| agent_engine::ChatMessage {
+                    role: m.role.clone(),
+                    content: m.content.clone(),
+                    tool_call_id: None,
+                    tool_calls: Vec::new(),
+                })
+                .collect(),
+        );
         input.on_stream_chunk = Some(stream_cb);
 
         tokio::spawn(async move {
@@ -179,8 +216,47 @@ pub async fn chat_completions_handler(
         }
         input.temperature = payload.temperature;
         input.max_tokens = payload.max_tokens;
+        input.tools = payload.tools;
+        input.tool_choice = payload.tool_choice;
+        input.response_format = payload.response_format;
+        input.messages = Some(
+            payload
+                .messages
+                .iter()
+                .map(|m| agent_engine::ChatMessage {
+                    role: m.role.clone(),
+                    content: m.content.clone(),
+                    tool_call_id: None,
+                    tool_calls: Vec::new(),
+                })
+                .collect(),
+        );
         match execution.execute(engine, &input).await {
             Ok(output) if output.exit_code == 0 => {
+                let mut msg = serde_json::json!({
+                    "role": "assistant",
+                    "content": output.stdout_content
+                });
+                if !output.tool_calls.is_empty() {
+                    let calls: Vec<serde_json::Value> = output
+                        .tool_calls
+                        .iter()
+                        .map(|tc| {
+                            serde_json::json!({
+                                "id": tc.id,
+                                "type": "function",
+                                "function": {
+                                    "name": tc.name,
+                                    "arguments": tc.arguments.to_string()
+                                }
+                            })
+                        })
+                        .collect();
+                    msg["tool_calls"] = serde_json::Value::Array(calls);
+                }
+                let finish_reason = output
+                    .finish_reason
+                    .unwrap_or_else(|| "stop".to_string());
                 let resp = serde_json::json!({
                     "id": completion_id,
                     "object": "chat.completion",
@@ -188,13 +264,10 @@ pub async fn chat_completions_handler(
                     "model": model_name,
                     "choices": [{
                         "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": output.stdout_content
-                        },
-                        "finish_reason": "stop"
+                        "message": msg,
+                        "finish_reason": finish_reason
                     }],
-                    "usage": null
+                    "usage": output.usage
                 });
                 Json(resp).into_response()
             }
@@ -222,6 +295,8 @@ pub async fn list_models_handler() -> Json<serde_json::Value> {
             { "id": "codex/gpt-4o", "object": "model", "created": now, "owned_by": "agentcore" },
             { "id": "claude", "object": "model", "created": now, "owned_by": "agentcore" },
             { "id": "claude/claude-sonnet-5", "object": "model", "created": now, "owned_by": "agentcore" },
+            { "id": "openai/gpt-4o-mini", "object": "model", "created": now, "owned_by": "tuzygent" },
+            { "id": "ollama/qwen2.5:latest", "object": "model", "created": now, "owned_by": "tuzygent" },
         ]
     }))
 }

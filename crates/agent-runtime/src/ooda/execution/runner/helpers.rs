@@ -74,6 +74,7 @@ pub fn build_engine_input(
         temperature: None,
         max_tokens: None,
         max_output_bytes: Some(executor.guardrail.max_output_bytes),
+        ..Default::default()
     }
 }
 

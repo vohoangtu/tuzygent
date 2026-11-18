@@ -249,6 +249,7 @@ async fn test_subtask_queue_successful_flow_and_context_updates(
             execution_duration_ms: 15,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }));
 
@@ -389,6 +390,7 @@ async fn test_subtask_queue_backtracking_and_remediation() -> Result<(), Box<dyn
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else if input.prompt_or_command == "apt-get install -y libssl-dev" {
             // Thực thi bước remediation
@@ -398,6 +400,7 @@ async fn test_subtask_queue_backtracking_and_remediation() -> Result<(), Box<dyn
                 execution_duration_ms: 20,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else if input.prompt_or_command == "cargo build --release" {
             let attempt = retry_clone.fetch_add(1, Ordering::SeqCst);
@@ -410,6 +413,7 @@ async fn test_subtask_queue_backtracking_and_remediation() -> Result<(), Box<dyn
                     execution_duration_ms: 30,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             } else {
                 // Lần 2 (sau remediation): Kiểm tra context nhận được remediation output, sau đó thành công
@@ -422,6 +426,7 @@ async fn test_subtask_queue_backtracking_and_remediation() -> Result<(), Box<dyn
                     execution_duration_ms: 45,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             }
         } else {
@@ -431,6 +436,7 @@ async fn test_subtask_queue_backtracking_and_remediation() -> Result<(), Box<dyn
                 execution_duration_ms: 5,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
     }));
@@ -534,6 +540,7 @@ async fn test_subtask_queue_verification_failure_backtracking(
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else if input.prompt_or_command == "generate-build-output-json" {
             // Remediation tạo ra file đúng yêu cầu
@@ -548,6 +555,7 @@ async fn test_subtask_queue_verification_failure_backtracking(
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else {
             // Command ban đầu chạy (không tạo file ở lần 1)
@@ -557,6 +565,7 @@ async fn test_subtask_queue_verification_failure_backtracking(
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
     }));
@@ -643,6 +652,7 @@ async fn test_subtask_queue_backtracking_exhausted_retries(
                 execution_duration_ms: 5,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else if input.prompt_or_command == "apply-fix" {
             Ok(EngineOutput {
@@ -651,6 +661,7 @@ async fn test_subtask_queue_backtracking_exhausted_retries(
                 execution_duration_ms: 5,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else {
             // Persistent fatal failure
@@ -660,6 +671,7 @@ async fn test_subtask_queue_backtracking_exhausted_retries(
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
     }));
@@ -724,6 +736,7 @@ async fn test_subtask_executor_scoped_scratchpad_isolation_and_merge(
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }));
     let env = TestEnv::new("scoped_scratchpad_test");
@@ -776,6 +789,7 @@ async fn test_subtask_executor_isolated_scratchpad_anti_snoop_and_cleanup(
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }));
     let env = TestEnv::new("isolated_scratchpad_test");

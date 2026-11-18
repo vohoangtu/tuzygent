@@ -99,6 +99,31 @@ impl ResilientCoreAgent {
         lock.push_back(res);
     }
 
+    /// Executes an operation backed by a real `ComputeEngine` with fault policy checks.
+    pub async fn execute_with_engine(
+        &self,
+        name: &str,
+        engine: &dyn agent_engine::ComputeEngine,
+        input: &agent_engine::EngineInput,
+    ) -> Result<CoreExecutionResult, CoreExecutionError> {
+        let start = Instant::now();
+        self.fault_policy.check_and_inject()?;
+        let out = engine
+            .execute(input)
+            .await
+            .map_err(|e| CoreExecutionError::TransientEngineFailure(e.to_string()))?;
+        let res = CoreExecutionResult {
+            operation_id: format!("op-{}", uuid::Uuid::new_v4().simple()),
+            name: name.to_string(),
+            output: out.stdout_content,
+            duration_us: start.elapsed().as_micros() as u64,
+            retries_used: 0,
+            recovered_from_fault: false,
+        };
+        self.store_result(res.clone());
+        Ok(res)
+    }
+
     /// Executes an operation with panic guard and fault policy checks.
     pub fn execute_operation(
         &self,

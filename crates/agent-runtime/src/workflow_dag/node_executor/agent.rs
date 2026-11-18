@@ -101,6 +101,7 @@ pub async fn execute_agent_node(
             temperature: None,
             max_tokens: None,
             max_output_bytes: None,
+            ..Default::default()
         };
 
         match execution.execute(engine.clone(), &input).await {

@@ -24,6 +24,7 @@ async fn test_execute_queue_resumes_completed_subtask() -> Result<(), Box<dyn st
             execution_duration_ms: 10,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }));
 
@@ -92,6 +93,7 @@ async fn test_execute_queue_all_subtasks_already_completed(
             execution_duration_ms: 1,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }));
 
@@ -130,6 +132,7 @@ async fn test_execute_queue_successful_execution() -> Result<(), Box<dyn std::er
             execution_duration_ms: 25,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }));
 

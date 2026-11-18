@@ -104,6 +104,7 @@ mod tests {
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })]));
         assert_eq!(seq_engine.execute(&input).await?.stdout_content, "first");
         assert!(seq_engine

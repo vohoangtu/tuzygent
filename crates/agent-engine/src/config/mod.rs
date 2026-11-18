@@ -22,6 +22,7 @@ mod tests {
             interactive_fallback: Some("tmux".into()),
             output_parser: Some("json".into()),
             env: [("MODE".into(), "safe".into())].into(),
+            ..Default::default()
         };
 
         let serialized = serde_json::to_value(&config).expect("Must serialize config");

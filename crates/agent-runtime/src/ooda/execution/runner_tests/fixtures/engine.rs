@@ -43,6 +43,7 @@ impl CallbackMockEngine<BoxedEngineFn> {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }))
     }
@@ -71,6 +72,7 @@ impl CallbackMockEngine<BoxedEngineFn> {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }))
     }
@@ -86,6 +88,7 @@ impl CallbackMockEngine<BoxedEngineFn> {
                     execution_duration_ms: 5,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             } else {
                 guard.remove(0)

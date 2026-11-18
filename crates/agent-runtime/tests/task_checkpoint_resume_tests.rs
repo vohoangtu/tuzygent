@@ -36,6 +36,7 @@ impl ComputeEngine for MultiStepMockEngine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             });
         }
 
@@ -55,6 +56,7 @@ impl ComputeEngine for MultiStepMockEngine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             });
         }
 
@@ -67,6 +69,7 @@ impl ComputeEngine for MultiStepMockEngine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             });
         }
 
@@ -76,6 +79,7 @@ impl ComputeEngine for MultiStepMockEngine {
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }
 
@@ -311,6 +315,7 @@ impl ComputeEngine for CrashOnStep2Engine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             });
         }
 
@@ -327,6 +332,7 @@ impl ComputeEngine for CrashOnStep2Engine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             });
         }
 
@@ -339,6 +345,7 @@ impl ComputeEngine for CrashOnStep2Engine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             });
         }
 
@@ -348,6 +355,7 @@ impl ComputeEngine for CrashOnStep2Engine {
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }
 

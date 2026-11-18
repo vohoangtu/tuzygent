@@ -142,6 +142,7 @@ async fn test_execute_queue_exhausts_retries_and_fails() -> Result<(), Box<dyn s
                 execution_duration_ms: 15,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
     }));
@@ -216,6 +217,7 @@ async fn test_execute_queue_recovers_from_exit_code_failure_via_remediation(
                 execution_duration_ms: 15,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else {
             Ok(mock_ok("Build completed successfully"))

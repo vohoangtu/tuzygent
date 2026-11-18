@@ -14,6 +14,6 @@ pub use extractors::{extract_bearer_token, extract_ws_token, token_matches};
 pub use fault::{simulate_auth_fault, AuthFault, AuthFaultPolicy};
 pub use middleware::require_auth;
 pub use sharded::ShardedResilientAuthValidator;
-pub use state::AuthState;
+pub use state::{AuthState, TenantContext, TenantKeyPolicy};
 pub use types::{AuthError, AuthErrorTier};
 pub use validator::{AuthFallbackStrategy, ResilientAuthValidator};

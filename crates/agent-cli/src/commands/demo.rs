@@ -76,6 +76,7 @@ pub async fn multi_agent(engine: String, workspace: String) -> anyhow::Result<()
         temperature: None,
         max_tokens: None,
         max_output_bytes: None,
+        ..Default::default()
     };
 
     let briefing = compute_engine.execute(&sre_input).await?;
@@ -231,6 +232,7 @@ pub async fn comedy_show(engine: String) -> anyhow::Result<()> {
                 temperature: None,
                 max_tokens: None,
                 max_output_bytes: None,
+                ..Default::default()
             };
 
             match compute_engine.execute(&input).await {
@@ -264,6 +266,7 @@ pub async fn comedy_show(engine: String) -> anyhow::Result<()> {
                 temperature: None,
                 max_tokens: None,
                 max_output_bytes: None,
+                ..Default::default()
             };
 
             match compute_engine.execute(&input).await {

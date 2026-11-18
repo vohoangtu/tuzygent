@@ -39,6 +39,7 @@ impl ComputeEngine for BenchmarkMockCliEngine {
                 execution_duration_ms: 1,
                 engine_used: EngineKind::Generic("benchmark-mock-cli".to_string()),
                 session_id: None,
+                ..Default::default()
             })
         }
     }
@@ -111,6 +112,7 @@ impl CliBenchmarkHarness {
                 temperature: None,
                 max_tokens: None,
                 max_output_bytes: None,
+                ..Default::default()
             };
 
             let t0 = Instant::now();
@@ -183,6 +185,7 @@ impl CliBenchmarkHarness {
                         temperature: None,
                         max_tokens: None,
                         max_output_bytes: None,
+                        ..Default::default()
                     };
 
                     let t0 = Instant::now();

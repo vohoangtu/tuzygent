@@ -87,4 +87,143 @@ impl MemoryService {
         )?;
         Ok(result)
     }
+
+    pub fn upsert_embedding(&self, memory_id: &str, model: &str, vector: &[f32]) -> Result<()> {
+        let db = self.connect()?;
+        let blob = crate::embeddings::encode_f32_le(vector);
+        db.execute(
+            "INSERT INTO memory_embeddings(memory_id, model, dims, vector) VALUES(?1, ?2, ?3, ?4)
+             ON CONFLICT(memory_id) DO UPDATE SET model=excluded.model, dims=excluded.dims, vector=excluded.vector",
+            params![memory_id, model, vector.len() as i64, blob],
+        )?;
+        Ok(())
+    }
+
+    /// Hybrid retrieval combining FTS5 BM25 keyword search and dense vector cosine similarity
+    /// via Reciprocal Rank Fusion (RRF).
+    pub async fn retrieve_hybrid(
+        &self,
+        task_id: &str,
+        query: &str,
+        embedder: &dyn crate::embeddings::EmbeddingProvider,
+    ) -> Result<RetrievedContext> {
+        let bm25_ctx = self.retrieve(task_id, query)?;
+        let query_vecs = embedder.embed(&[query.to_string()]).await?;
+        let Some(query_vec) = query_vecs.into_iter().next() else {
+            return Ok(bm25_ctx);
+        };
+
+        let db = self.connect()?;
+        let mut stmt = db.prepare(
+            "SELECT e.memory_id, e.vector FROM memory_embeddings e
+             JOIN memories m ON m.id = e.memory_id
+             WHERE m.project=?1 AND (m.persona=?2 OR m.scope='project')
+               AND m.status='active' AND m.kind IN ('procedure','knowledge')",
+        )?;
+        let mut vec_scored: Vec<(String, f32)> = stmt
+            .query_map(params![self.project, self.persona], |r| {
+                let id: String = r.get(0)?;
+                let blob: Vec<u8> = r.get(1)?;
+                Ok((id, blob))
+            })?
+            .filter_map(|row| row.ok())
+            .map(|(id, blob)| {
+                let vec = crate::embeddings::decode_f32_le(&blob);
+                let sim = crate::embeddings::cosine_similarity(&query_vec, &vec);
+                (id, sim)
+            })
+            .collect();
+        vec_scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+        let mut rrf: std::collections::HashMap<String, f32> = std::collections::HashMap::new();
+        for (rank, id) in bm25_ctx.memory_ids.iter().enumerate() {
+            *rrf.entry(id.clone()).or_insert(0.0) += 1.0 / (60.0 + rank as f32 + 1.0);
+        }
+        for (rank, (id, sim)) in vec_scored.into_iter().take(8).enumerate() {
+            if sim > 0.0 {
+                *rrf.entry(id).or_insert(0.0) += 1.0 / (60.0 + rank as f32 + 1.0);
+            }
+        }
+
+        let mut ranked: Vec<(String, f32)> = rrf.into_iter().collect();
+        ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+        let mut result = RetrievedContext {
+            memory_ids: Vec::new(),
+            text: String::new(),
+        };
+        for (id, _) in ranked.into_iter().take(8) {
+            let Ok(r) = self.show(&id) else {
+                continue;
+            };
+            let entry = format!(
+                "\n[Memory {} | source {}]\n{}\nApplies when: {}\n",
+                r.id, r.source, r.content, r.conditions
+            );
+            let remaining = 12000usize.saturating_sub(result.text.chars().count());
+            if remaining == 0 {
+                break;
+            }
+            result.text.extend(entry.chars().take(remaining));
+            result.memory_ids.push(id);
+        }
+        Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::embeddings::EmbeddingProvider;
+    use crate::persona_memory::service::MemoryService;
+    use anyhow::Result;
+    use async_trait::async_trait;
+    use rusqlite::params;
+
+    struct MockEmbedder;
+
+    #[async_trait]
+    impl EmbeddingProvider for MockEmbedder {
+        fn model_name(&self) -> &str {
+            "mock-embed"
+        }
+
+        async fn embed(&self, texts: &[String]) -> Result<Vec<Vec<f32>>> {
+            Ok(texts
+                .iter()
+                .map(|t| {
+                    if t.contains("automobile") || t.contains("car") {
+                        vec![1.0, 0.0]
+                    } else {
+                        vec![0.0, 1.0]
+                    }
+                })
+                .collect())
+        }
+    }
+
+    #[tokio::test]
+    async fn hybrid_retrieval_finds_semantic_match_missed_by_bm25() {
+        let dir = std::env::temp_dir().join(format!("tuzy_hyb_{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let svc = MemoryService::open(&dir, "p1", "a1").unwrap();
+        {
+            let db = svc.connect().unwrap();
+            db.execute(
+                "INSERT INTO memories(id,project,persona,kind,scope,status,content,conditions,source,verified,version,created)
+                 VALUES('mem-car','p1','a1','knowledge','project','active','Always check car tire pressure','vehicle maintenance','test',1,1,'2026-01-01')",
+                params![],
+            )
+            .unwrap();
+        }
+        svc.upsert_embedding("mem-car", "mock-embed", &[1.0, 0.0]).unwrap();
+
+        let ctx = svc
+            .retrieve_hybrid("t1", "automobile inspection", &MockEmbedder)
+            .await
+            .unwrap();
+        assert!(ctx.memory_ids.contains(&"mem-car".to_string()));
+        assert!(ctx.text.contains("tire pressure"));
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

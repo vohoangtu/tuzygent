@@ -23,6 +23,7 @@ fn create_test_input(prompt: &str, timeout_seconds: u64) -> EngineInput {
         temperature: None,
         max_tokens: None,
         max_output_bytes: None,
+        ..Default::default()
     }
 }
 
@@ -33,6 +34,7 @@ fn create_test_output(stdout_content: &str) -> EngineOutput {
         execution_duration_ms: 10,
         engine_used: EngineKind::Generic("test-output".to_string()),
         session_id: None,
+        ..Default::default()
     }
 }
 
@@ -156,6 +158,7 @@ impl ComputeEngine for MockFailingCliEngine {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Generic("mock-failing-cli".to_string()),
                 session_id: None,
+                ..Default::default()
             })
         }
     }

@@ -40,6 +40,7 @@ impl ComputeEngine for WorkspaceWritingEngine {
             exit_code: self.exit_code,
             execution_duration_ms: self.duration_ms,
             engine_used: self.kind.clone(),
+            ..Default::default()
         })
     }
 
@@ -236,6 +237,7 @@ async fn tdd_tournament_partial_failure_survives_and_full_failure_triggers_fallb
                 exit_code: 0,
                 execution_duration_ms: 50,
                 engine_used: EngineKind::Mock,
+                ..Default::default()
             })
         }
         fn engine_kind(&self) -> EngineKind {

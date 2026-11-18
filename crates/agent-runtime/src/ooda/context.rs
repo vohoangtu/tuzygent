@@ -49,6 +49,7 @@ pub(crate) async fn prepare_sandbox_and_brief(
 
 pub(crate) async fn orient_context(
     workspace_dir: &str,
+    project_id: &str,
     persona: &Option<AgentPersonaProfile>,
     task: &Task,
 ) -> Result<(agent_memory::MemoryService, String), String> {
@@ -65,6 +66,7 @@ pub(crate) async fn orient_context(
             .or_else(|| task.assigned_agent.as_ref().map(|a| a.0.clone()))
             .unwrap_or_else(|| "anonymous".into());
         let workspace = workspace_dir.to_string();
+        let project = project_id.to_string();
         let profile = persona.clone();
         let goal = task.goal_description.clone();
         let task_id = task.id.0.clone();
@@ -72,7 +74,7 @@ pub(crate) async fn orient_context(
         let (memory, context, meta_prompt) = match tokio::task::spawn_blocking(move || -> anyhow::Result<_> {
             let memory = agent_memory::MemoryService::open(
                 Path::new(&workspace),
-                "default",
+                &project,
                 &persona_id,
             )?;
             if let Some(profile) = &profile {
@@ -217,6 +219,7 @@ mod tests {
             workspace
                 .to_str()
                 .expect("temporary path should be valid UTF-8"),
+            "default",
             &None,
             &task,
         )

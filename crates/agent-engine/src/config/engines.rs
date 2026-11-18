@@ -4,9 +4,9 @@ use std::collections::HashMap;
 use super::defaults::DefaultsConfig;
 use super::security::SecurityConfig;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct SingleEngineConfig {
-    pub kind: String, // "antigravity", "claude_code", "codex", "generic", "openai", "mock"
+    pub kind: String, // "antigravity", "claude_code", "codex", "generic", "openai", "ollama", "mock"
     pub binary_path: Option<String>,
     #[serde(default)]
     pub args: Vec<String>,
@@ -15,6 +15,10 @@ pub struct SingleEngineConfig {
     pub output_parser: Option<String>,
     #[serde(default)]
     pub env: HashMap<String, String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub api_key_env: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -47,6 +51,7 @@ impl Default for EnginesConfig {
                 interactive_fallback: Some("tmux".to_string()),
                 output_parser: Some("json_stream".to_string()),
                 env: HashMap::new(),
+                ..Default::default()
             },
         );
 
@@ -65,6 +70,7 @@ impl Default for EnginesConfig {
                 interactive_fallback: Some("tmux".to_string()),
                 output_parser: Some("json".to_string()),
                 env: HashMap::new(),
+                ..Default::default()
             },
         );
 
@@ -78,6 +84,7 @@ impl Default for EnginesConfig {
                 interactive_fallback: None,
                 output_parser: Some("codex_jsonl".into()),
                 env: HashMap::new(),
+                ..Default::default()
             },
         );
 

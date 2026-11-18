@@ -210,6 +210,7 @@ impl CodexEngine {
             execution_duration_ms: start.elapsed().as_millis(),
             engine_used: EngineKind::Codex,
             session_id: state.session_id.clone(),
+            ..Default::default()
         })
     }
 }

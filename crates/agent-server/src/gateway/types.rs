@@ -16,6 +16,47 @@ pub struct ChatCompletionRequest {
     pub stream: bool,
     pub temperature: Option<f32>,
     pub max_tokens: Option<u32>,
+    #[serde(default)]
+    pub tools: Vec<agent_engine::ToolDefinition>,
+    #[serde(default)]
+    pub tool_choice: Option<serde_json::Value>,
+    #[serde(default)]
+    pub response_format: Option<agent_engine::ResponseFormat>,
+}
+
+/// Target engine resolution for `/v1/chat/completions` and `/api/v1/brain/run`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum GatewayTarget {
+    AccountRotated(AccountEngineKind, Option<String>),
+    ConfiguredApi {
+        engine_name: String,
+        model_override: Option<String>,
+    },
+}
+
+pub fn resolve_gateway_target(model_str: &str) -> Result<GatewayTarget, String> {
+    let lower = model_str.to_lowercase();
+    if let Some((prefix, rest)) = model_str.split_once('/') {
+        let p = prefix.to_lowercase();
+        if matches!(p.as_str(), "openai" | "ollama" | "api" | "local" | "omniroute") {
+            let model_override = if rest.trim().is_empty() {
+                None
+            } else {
+                Some(rest.to_string())
+            };
+            return Ok(GatewayTarget::ConfiguredApi {
+                engine_name: p,
+                model_override,
+            });
+        }
+    } else if matches!(lower.as_str(), "openai" | "ollama" | "local" | "omniroute") {
+        return Ok(GatewayTarget::ConfiguredApi {
+            engine_name: lower,
+            model_override: None,
+        });
+    }
+    let (kind, model_override) = parse_model_spec(model_str)?;
+    Ok(GatewayTarget::AccountRotated(kind, model_override))
 }
 
 #[derive(Debug, Deserialize)]

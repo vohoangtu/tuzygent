@@ -171,6 +171,7 @@ async fn test_ooda_lifecycle_spans_in_order() {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else {
             // Subtask execution Act
@@ -180,6 +181,7 @@ async fn test_ooda_lifecycle_spans_in_order() {
                 execution_duration_ms: 5,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
     }));
@@ -297,6 +299,7 @@ async fn test_ooda_remediation_span_metadata_and_backtracking() {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         } else if input.prompt_or_command.contains("failing-cmd") {
             let attempt = counter_clone.fetch_add(1, Ordering::SeqCst);
@@ -308,6 +311,7 @@ async fn test_ooda_remediation_span_metadata_and_backtracking() {
                     execution_duration_ms: 5,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             } else {
                 // Retry passes
@@ -317,6 +321,7 @@ async fn test_ooda_remediation_span_metadata_and_backtracking() {
                     execution_duration_ms: 5,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             }
         } else {
@@ -326,6 +331,7 @@ async fn test_ooda_remediation_span_metadata_and_backtracking() {
                 execution_duration_ms: 5,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
     }));

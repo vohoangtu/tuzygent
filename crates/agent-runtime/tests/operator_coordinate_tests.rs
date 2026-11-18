@@ -40,6 +40,7 @@ impl ComputeEngine for RecordingMockEngine {
             exit_code: 0,
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
+            ..Default::default()
         })
     }
 

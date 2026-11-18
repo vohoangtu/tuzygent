@@ -46,6 +46,12 @@ CREATE TABLE IF NOT EXISTS retrievals(
     ids TEXT,
     created TEXT
 );
+CREATE TABLE IF NOT EXISTS memory_embeddings(
+    memory_id TEXT PRIMARY KEY,
+    model TEXT NOT NULL,
+    dims INTEGER NOT NULL,
+    vector BLOB NOT NULL
+);
 "#;
 
 pub fn init_schema(db: &Connection) -> Result<()> {

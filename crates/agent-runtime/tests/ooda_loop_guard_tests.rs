@@ -21,6 +21,7 @@ impl ComputeEngine for MockSuccessEngine {
             exit_code: 0,
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
+            ..Default::default()
         })
     }
 }
@@ -40,6 +41,7 @@ impl ComputeEngine for MockFailingEngine {
             exit_code: 1,
             execution_duration_ms: 5,
             engine_used: EngineKind::Mock,
+            ..Default::default()
         })
     }
 }

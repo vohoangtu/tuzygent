@@ -53,6 +53,7 @@ impl ComputeEngine for CustomAgentApiEngine {
             execution_duration_ms: duration,
             engine_used: EngineKind::CustomAgentApi,
             session_id: None,
+            ..Default::default()
         })
     }
 

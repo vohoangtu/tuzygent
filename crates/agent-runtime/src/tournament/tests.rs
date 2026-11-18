@@ -55,6 +55,7 @@ impl ComputeEngine for SimulatedEngine {
             exit_code: self.exit_code,
             execution_duration_ms: self.duration_ms,
             engine_used: self.kind.clone(),
+            ..Default::default()
         })
     }
 
@@ -84,6 +85,7 @@ fn auto_judge_scores_verification_pass_rate_and_penalties_accurately() {
         exit_code: 0,
         execution_duration_ms: 500,
         engine_used: EngineKind::ClaudeCode,
+        ..Default::default()
     });
     let out_slow_bloated = Ok(EngineOutput {
         session_id: None,
@@ -91,6 +93,7 @@ fn auto_judge_scores_verification_pass_rate_and_penalties_accurately() {
         exit_code: 0,
         execution_duration_ms: 5000,
         engine_used: EngineKind::Codex,
+        ..Default::default()
     });
     let out_partial_verif = Ok(EngineOutput {
         session_id: None,
@@ -98,6 +101,7 @@ fn auto_judge_scores_verification_pass_rate_and_penalties_accurately() {
         exit_code: 0,
         execution_duration_ms: 400,
         engine_used: EngineKind::Antigravity,
+        ..Default::default()
     });
 
     let sc_fast = judge.score_candidate(
@@ -173,6 +177,7 @@ async fn tournament_executes_candidates_in_parallel_and_picks_best() {
                 exit_code: 0,
                 execution_duration_ms: self.duration_ms,
                 engine_used: self.kind.clone(),
+                ..Default::default()
             })
         }
 

@@ -89,6 +89,29 @@ async fn main() -> anyhow::Result<()> {
 cargo run -p agent-core --example embed_agent
 ```
 
+### Nhúng nhanh dạng AI Brain (`BrainClient` - hỗ trợ API Calling & Tool Loop):
+```rust
+use agent_core::prelude::*;
+use std::sync::Arc;
+
+let engine = Arc::new(OpenAiCompatibleEngine::new(
+    "https://api.openai.com/v1",
+    &std::env::var("OPENAI_API_KEY")?,
+    "gpt-4o-mini",
+));
+
+let brain = BrainClient::builder()
+    .with_engine(engine)
+    .with_project_id("my-ai-app")
+    .build()?;
+
+let out = brain
+    .chat(vec![ChatMessage::user("Tóm tắt kiến trúc hệ thống")], BrainChatOptions::default())
+    .await?;
+```
+- Hỗ trợ `brain.chat(...)`, `brain.chat_stream(...)`, `brain.run_tools(...)` (vòng lặp ReAct nối trực tiếp `McpToolGateway`, không cần shell/sandbox), và `brain.run_goal(...)` (OODA tự chủ).
+- Bộ nhớ `agent-memory` hỗ trợ `SessionMemory` (tách theo `project` + `session_id`) và `MemoryService::retrieve_hybrid` (kết hợp FTS5 BM25 + Vector Embedding RRF).
+
 ---
 
 ## 3. HƯỚNG DẪN CHẠY DAEMON REST & WEBSOCKET (`agent-server`)
@@ -101,6 +124,9 @@ cargo run -p agent-server -- --host 127.0.0.1 --port 8080 --workspace .
 
 ### Các Endpoint chính:
 - **`GET /health`**: Kiểm tra trạng thái server.
+- **`GET /api/v1/openapi.json`**: Trả về OpenAPI 3.1.0 schema phục vụ sinh SDK TypeScript/Python/Go.
+- **`POST /api/v1/brain/run`**: Endpoint AI Brain hợp nhất (hỗ trợ đa tenant qua `TenantKeyPolicy`/`X-Tenant-Id`, `session_id`, `tools`, `response_format`, SSE streaming, ghi nhận token usage).
+- **`POST /v1/chat/completions`**: Gateway chuẩn OpenAI (hỗ trợ SSE streaming, `tools`, `response_format`, `usage`, định tuyến cả CLI engines lẫn API engines `openai/*`, `ollama/*`).
 - **`GET /api/v1/engines`**: Xem cấu hình các AI CLI engine đã nạp và trạng thái sandbox OS.
 - **`GET /api/v1/agents`**: Lấy danh sách nhân viên số đang hoạt động.
 - **`POST /api/v1/agents`**: Đăng ký agent mới.

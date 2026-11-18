@@ -78,6 +78,7 @@ async fn configured_engine_builds_the_engine_kind_declared_in_config() {
             interactive_fallback: None,
             output_parser: None,
             env: HashMap::new(),
+            ..Default::default()
         },
     );
 

@@ -13,6 +13,7 @@ pub(super) fn mock_remediation(id: &str, title: &str, cmd: &str) -> EngineOutput
         execution_duration_ms: 10,
         engine_used: EngineKind::Mock,
         session_id: None,
+        ..Default::default()
     }
 }
 
@@ -23,5 +24,6 @@ pub(super) fn mock_ok(stdout: &str) -> EngineOutput {
         execution_duration_ms: 10,
         engine_used: EngineKind::Mock,
         session_id: None,
+        ..Default::default()
     }
 }

@@ -32,6 +32,7 @@ dependencies = [
  "agent-memory",
  "agent-runtime",
  "anyhow",
+ "async-trait",
  "chrono",
  "serde",
  "serde_json",
@@ -79,8 +80,10 @@ version = "0.1.159"
 dependencies = [
  "agent-domain",
  "anyhow",
+ "async-trait",
  "chrono",
  "regex",
+ "reqwest",
  "rusqlite",
  "serde",
  "serde_json",

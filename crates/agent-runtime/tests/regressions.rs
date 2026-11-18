@@ -63,6 +63,7 @@ impl ComputeEngine for RetryEngine {
             execution_duration_ms: 0,
             engine_used: EngineKind::Mock,
             session_id: None,
+            ..Default::default()
         })
     }
     fn engine_kind(&self) -> EngineKind {
@@ -220,6 +221,7 @@ async fn sandbox_context_reaches_planning_actions_and_remediation() {
                 execution_duration_ms: 0,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
         fn engine_kind(&self) -> EngineKind {
@@ -273,6 +275,7 @@ async fn rig_propagates_engine_failures_and_actually_runs_channel_handoffs() {
                 execution_duration_ms: 0,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
         fn engine_kind(&self) -> EngineKind {

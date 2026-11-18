@@ -627,6 +627,7 @@ async fn test_topic_b998f4_root_cause_eliminated_for_execution_service() {
                 execution_duration_ms: 10,
                 engine_used: EngineKind::Mock,
                 session_id: None,
+                ..Default::default()
             })
         }
         fn engine_kind(&self) -> EngineKind {
@@ -2804,6 +2805,7 @@ async fn test_topic_169a18_ooda_tracing_spans() {
                     execution_duration_ms: 10,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             } else {
                 Ok(EngineOutput {
@@ -2812,6 +2814,7 @@ async fn test_topic_169a18_ooda_tracing_spans() {
                     execution_duration_ms: 5,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             }
         },
@@ -2925,6 +2928,7 @@ async fn test_topic_169a18_ooda_tracing_spans() {
                     execution_duration_ms: 10,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             } else if input.prompt_or_command.contains("failing-cmd") {
                 let attempt = counter_clone.fetch_add(1, Ordering::SeqCst);
@@ -2935,6 +2939,7 @@ async fn test_topic_169a18_ooda_tracing_spans() {
                         execution_duration_ms: 5,
                         engine_used: EngineKind::Mock,
                         session_id: None,
+                        ..Default::default()
                     })
                 } else {
                     Ok(EngineOutput {
@@ -2943,6 +2948,7 @@ async fn test_topic_169a18_ooda_tracing_spans() {
                         execution_duration_ms: 5,
                         engine_used: EngineKind::Mock,
                         session_id: None,
+                        ..Default::default()
                     })
                 }
             } else {
@@ -2952,6 +2958,7 @@ async fn test_topic_169a18_ooda_tracing_spans() {
                     execution_duration_ms: 5,
                     engine_used: EngineKind::Mock,
                     session_id: None,
+                    ..Default::default()
                 })
             }
         },

@@ -64,6 +64,7 @@ pub async fn generate_remediation_subtask(
             temperature: None,
             max_tokens: None,
             max_output_bytes: Some(executor.guardrail.max_output_bytes),
+            ..Default::default()
         };
 
         if let Ok(out) = executor.execute_engine(&input).await {

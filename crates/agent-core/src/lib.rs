@@ -41,12 +41,14 @@ pub use agent_memory as memory;
 pub use agent_runtime as runtime;
 
 pub mod benchmark;
+pub mod brain;
 pub mod fault;
 pub mod resilience;
 pub mod safe;
 pub mod sharded;
 
 pub use benchmark::{CoreBenchmarkHarness, CoreBenchmarkStats};
+pub use brain::{BrainChatOptions, BrainClient, BrainClientBuilder};
 pub use fault::{CircuitState, CoreExecutionError, CoreFaultKind, CoreFaultPolicy};
 pub use resilience::{CoreExecutionResult, ResilientCoreAgent, ResilientCoreAgentBuilder};
 pub use safe::{SafeGuard, SafeUnwrapExt};
@@ -67,7 +69,8 @@ pub mod prelude {
     pub use agent_engine::{
         api::OpenAiCompatibleEngine, cli::AntigravityEngine, cli::ClaudeCodeEngine,
         cli::CodexEngine, cli::GenericCliEngine, config::EnginesConfig, config::SingleEngineConfig,
-        router::EngineRouter, ComputeEngine, EngineInput, EngineKind, EngineOutput,
+        router::EngineRouter, ChatMessage, ComputeEngine, EngineInput, EngineKind, EngineOutput,
+        ResponseFormat, TokenUsage, ToolCall, ToolDefinition,
     };
     pub use agent_memory::{
         DurableMemoryStore, MemoryRecord, MemoryService, PersonaLoader, RetrievedContext,
@@ -83,11 +86,13 @@ pub mod prelude {
         SandboxSelfCheckReport, SandboxSpec, TeammateTurnResult, TournamentCandidate,
         TournamentExecutor, TournamentOutcome, WorkflowOrchestrator, WorkspaceBenchmarkHarness,
         WorkspaceManager, WsRpcClient, CoordinateBotsRequest, CoordinationBatchResult,
-        CoordinationContext, CoordinationReplyMode, DEFAULT_MAX_COORDINATION_DEPTH,
+        CoordinationContext, CoordinationReplyMode, ToolCallingLoop, ToolLoopConfig,
+        ToolLoopResult, DEFAULT_MAX_COORDINATION_DEPTH,
         MAX_COORDINATE_BOTS, SANDBOX_CPU_TOPOLOGY_PATHS, SANDBOX_ENV_NEVER_LIST,
     };
 
     pub use crate::benchmark::{CoreBenchmarkHarness, CoreBenchmarkStats};
+    pub use crate::brain::{BrainChatOptions, BrainClient, BrainClientBuilder};
     pub use crate::fault::{CircuitState, CoreExecutionError, CoreFaultKind, CoreFaultPolicy};
     pub use crate::resilience::{
         CoreExecutionResult, ResilientCoreAgent, ResilientCoreAgentBuilder,

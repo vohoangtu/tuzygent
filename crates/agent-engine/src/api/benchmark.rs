@@ -39,6 +39,7 @@ impl ComputeEngine for BenchmarkMockApiEngine {
                 execution_duration_ms: 1,
                 engine_used: EngineKind::CustomAgentApi,
                 session_id: None,
+                ..Default::default()
             })
         }
     }
@@ -111,6 +112,7 @@ impl ApiBenchmarkHarness {
                 temperature: None,
                 max_tokens: None,
                 max_output_bytes: None,
+                ..Default::default()
             };
 
             let t0 = Instant::now();
@@ -183,6 +185,7 @@ impl ApiBenchmarkHarness {
                         temperature: None,
                         max_tokens: None,
                         max_output_bytes: None,
+                        ..Default::default()
                     };
 
                     let t0 = Instant::now();
